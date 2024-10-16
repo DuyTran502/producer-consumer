@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô phỏng bài toán Producer-Consumer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .controls {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bài toán mô phỏng Producer-Consumer</h1>
+    <div class="controls">
+        <button onclick="startSimulation()">Start</button>
+        <button onclick="pauseSimulation()">Pause</button>
+        <button onclick="resumeSimulation()">Resume</button>
+    </div>
+    <pre id="output">Chờ mô phỏng...</pre>
+
+    <script>
+        let isPaused = false;
+        let outputElement = document.getElementById('output');
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function startSimulation() {
+            outputElement.textContent = 'Bắt đầu mô phỏng...\n';
+
+            let buffer = [];
+            const BUFFER_SIZE = 3;
+            const Empty = 3;
+            let Full = 0;
+
+            while (true) {
+                if (isPaused) {
+                    await sleep(100); // Pause loop but keep checking for resume
+                    continue;
+                }
+
+                // Producer
+                if (buffer.length < BUFFER_SIZE) {
+                    let data = Math.floor(Math.random() * 100);
+                    buffer.push(data);
+                    outputElement.textContent += `Producer thêm dữ liệu: ${data}\n`;
+                    Full++;
+                    await sleep(500); // Simulate producer time
+                }
+
+                // Consumer
+                if (Full > 0) {
+                    let data = buffer.shift();
+                    outputElement.textContent += `Consumer nhận dữ liệu: ${data}\n`;
+                    Full--;
+                    await sleep(1000); // Simulate consumer time
+                }
+
+                // Automatically scroll to the bottom for new logs
+                outputElement.scrollTop = outputElement.scrollHeight;
+
+                await sleep(100); // Simulate loop delay
+            }
+        }
+
+        function pauseSimulation() {
+            isPaused = true;
+            outputElement.textContent += 'Tạm dừng mô phỏng...\n';
+        }
+
+        function resumeSimulation() {
+            isPaused = false;
+            outputElement.textContent += 'Tiếp tục chạy mô phỏng...\n';
+        }
+    </script>
+</body>
+</html>
